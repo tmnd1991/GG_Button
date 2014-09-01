@@ -23,15 +23,16 @@ gg_button.setImage(UIImage(named: "gg_pressed"), forState: .Normal)
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
     @IBAction func tap(sender: UIButton) {
-
         sender.setImage(UIImage(named: "gg_pressed"), forState: .Normal)
         play()
-
     }
+    
     @IBAction func untap(sender: UIButton) {
         sender.setImage(UIImage(named: "gg_notPressed"), forState: .Normal)
     }
+    
     func play(){
         let myAppDelegate = UIApplication.sharedApplication().delegate as AppDelegate
         myAppDelegate.playFromUrl(NSBundle.mainBundle().URLForResource("GG", withExtension: "m4a")!)

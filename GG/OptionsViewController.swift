@@ -12,10 +12,14 @@ class OptionsViewController: UIViewController, UIPickerViewDataSource, UIPickerV
     @IBOutlet weak var voicePicker: UIPickerView!
     @IBOutlet weak var phrasePicker: UIPickerView!
 
-    let phrase = ["GG", "Bullshit!"]
-    let voices = [[("GG1","GG"),("GG2","GG")],[("BS1","GG"),("BS2","GG")]]
+    let phrase = ["GG", "Bullshit!","GG", "Bullshit!","GG", "Bullshit!"]
+    let voices = [[("GG1","GG"),("GG2","GG"),("GG3","GG"),("GG4","GG"),("GG5","GG"),("GG6","GG")],[("BS1","GG"),("BS2","GG")]]
     override func viewDidLoad() {
         super.viewDidLoad()
+        let selectedPhrase = NSUserDefaults.standardUserDefaults().integerForKey("phrase")
+        let selectedVoice =  NSUserDefaults.standardUserDefaults().integerForKey("voice")
+        phrasePicker.selectRow(selectedVoice, inComponent: 0, animated: true)
+        voicePicker.selectRow(selectedVoice, inComponent: 0, animated: true)
         // Do any additional setup after loading the view.
     }
 
@@ -25,6 +29,8 @@ class OptionsViewController: UIViewController, UIPickerViewDataSource, UIPickerV
     }
     
     @IBAction func save(sender: AnyObject) {
+        NSUserDefaults.standardUserDefaults().setInteger(phrasePicker.selectedRowInComponent(0), forKey: "phrase")
+        NSUserDefaults.standardUserDefaults().setInteger(voicePicker.selectedRowInComponent(0), forKey: "voice")
         self.dismissViewControllerAnimated(true, completion: {})
     }
 
@@ -38,7 +44,7 @@ class OptionsViewController: UIViewController, UIPickerViewDataSource, UIPickerV
     
     func pickerView(pickerView: UIPickerView!, numberOfRowsInComponent component: Int) -> Int {
         switch(pickerView){
-            case voicePicker: return voices.count
+            case voicePicker: return voices[phrasePicker.selectedRowInComponent(0)].count
             case phrasePicker: return phrase.count
             default: return 0
         }
