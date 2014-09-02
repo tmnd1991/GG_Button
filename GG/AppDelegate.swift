@@ -23,16 +23,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
     
-    func playFromUrl(url: NSURL){
+    func playFromUrl(url: NSURL?){
         if (myAudioPlayer != nil)
         {
             if (myAudioPlayer!.playing){
                 myAudioPlayer!.stop()
             }
         }
-        myAudioPlayer = AVAudioPlayer(contentsOfURL: url, error: nil)
-        myAudioPlayer?.prepareToPlay()
-        myAudioPlayer?.play()
+        if (url != nil) {
+            myAudioPlayer = AVAudioPlayer(contentsOfURL: url, error: nil)
+            myAudioPlayer?.prepareToPlay()
+            myAudioPlayer?.play()
+        }
     }
     
     func applicationWillResignActive(application: UIApplication!) {

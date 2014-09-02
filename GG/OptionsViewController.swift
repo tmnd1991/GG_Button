@@ -12,14 +12,36 @@ class OptionsViewController: UIViewController, UIPickerViewDataSource, UIPickerV
     @IBOutlet weak var voicePicker: UIPickerView!
     @IBOutlet weak var phrasePicker: UIPickerView!
 
-    let phrase = ["GG", "Bullshit!","GG", "Bullshit!","GG", "Bullshit!"]
-    let voices = [[("GG1","GG"),("GG2","GG"),("GG3","GG"),("GG4","GG"),("GG5","GG"),("GG6","GG")],[("BS1","GG"),("BS2","GG")]]
     override func viewDidLoad() {
         super.viewDidLoad()
-        let selectedPhrase = NSUserDefaults.standardUserDefaults().integerForKey("phrase")
-        let selectedVoice =  NSUserDefaults.standardUserDefaults().integerForKey("voice")
-        phrasePicker.selectRow(selectedVoice, inComponent: 0, animated: true)
-        voicePicker.selectRow(selectedVoice, inComponent: 0, animated: true)
+        let chosenPhrase : Int = {
+            let keys = PhrasesDataSource.sharedInstance.phrases.keys.array
+            var i = 0
+            for x in keys{
+                if (x == PhrasesDataSource.sharedInstance.chosen.0){
+                    return i
+                }
+                i++
+            }
+            return 0
+        }()
+        
+        let chosenVoice : Int = {
+            let keys = PhrasesDataSource.sharedInstance.phrases[PhrasesDataSource.sharedInstance.chosen.0]?.voices.keys.array
+            if (keys != nil){
+                var i = 0
+                for x in keys!{
+                    if (x == PhrasesDataSource.sharedInstance.chosen.1){
+                        return i
+                    }
+                    i++
+                }
+            }
+            return 0
+        }()
+        
+        phrasePicker.selectRow(chosenPhrase, inComponent: 0, animated: true)
+        voicePicker.selectRow(chosenVoice, inComponent: 0, animated: true)
         // Do any additional setup after loading the view.
     }
 
@@ -29,8 +51,9 @@ class OptionsViewController: UIViewController, UIPickerViewDataSource, UIPickerV
     }
     
     @IBAction func save(sender: AnyObject) {
-        NSUserDefaults.standardUserDefaults().setInteger(phrasePicker.selectedRowInComponent(0), forKey: "phrase")
-        NSUserDefaults.standardUserDefaults().setInteger(voicePicker.selectedRowInComponent(0), forKey: "voice")
+        let phraseKeyToSave = PhrasesDataSource.sharedInstance.phrases.keys.array[phrasePicker.selectedRowInComponent(0)]
+        let voiceKeyToSave = PhrasesDataSource.sharedInstance.phrases[phraseKeyToSave]!.voices.keys.array[voicePicker.selectedRowInComponent(0)]
+        PhrasesDataSource.sharedInstance.save((phraseKeyToSave,voiceKeyToSave))
         self.dismissViewControllerAnimated(true, completion: {})
     }
 
@@ -44,8 +67,8 @@ class OptionsViewController: UIViewController, UIPickerViewDataSource, UIPickerV
     
     func pickerView(pickerView: UIPickerView!, numberOfRowsInComponent component: Int) -> Int {
         switch(pickerView){
-            case voicePicker: return voices[phrasePicker.selectedRowInComponent(0)].count
-            case phrasePicker: return phrase.count
+            case voicePicker: return selectedPhrase().voices.count
+            case phrasePicker: return PhrasesDataSource.sharedInstance.phrases.count
             default: return 0
         }
     }
@@ -56,7 +79,7 @@ class OptionsViewController: UIViewController, UIPickerViewDataSource, UIPickerV
                 break
             case voicePicker:
                 let myAppDelegate = UIApplication.sharedApplication().delegate as AppDelegate
-                myAppDelegate.playFromUrl(NSBundle.mainBundle().URLForResource(voices[phrasePicker.selectedRowInComponent(0)][row].1, withExtension: "m4a")!)
+                myAppDelegate.playFromUrl(selectedVoice().url)
                 break;
             default: return
         }
@@ -64,10 +87,18 @@ class OptionsViewController: UIViewController, UIPickerViewDataSource, UIPickerV
     
     func pickerView(pickerView: UIPickerView!, titleForRow row: Int, forComponent component: Int) -> String! {
         switch(pickerView){
-            case phrasePicker: return phrase[row]
-            case voicePicker: return voices[phrasePicker.selectedRowInComponent(0)][row].0
+            case phrasePicker: return PhrasesDataSource.sharedInstance.phrases.values.array[row].name
+            case voicePicker:  return selectedPhrase().voices.values.array[row].name
             default: return ""
         }
+    }
+    func selectedPhrase() -> Phrase{
+        let selectedPhraseName = PhrasesDataSource.sharedInstance.phrases.keys.array[phrasePicker.selectedRowInComponent(0)]
+        return PhrasesDataSource.sharedInstance.phrases[selectedPhraseName]!
+    }
+    private func selectedVoice() -> Voice{
+        let selectedVoiceName = selectedPhrase().voices.keys.array[voicePicker.selectedRowInComponent(0)]
+        return selectedPhrase().voices[selectedVoiceName]!
     }
     /*
     // MARK: - Navigation

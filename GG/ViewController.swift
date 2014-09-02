@@ -35,7 +35,7 @@ gg_button.setImage(UIImage(named: "gg_pressed"), forState: .Normal)
     
     func play(){
         let myAppDelegate = UIApplication.sharedApplication().delegate as AppDelegate
-        myAppDelegate.playFromUrl(NSBundle.mainBundle().URLForResource("GG", withExtension: "m4a")!)
+        myAppDelegate.playFromUrl(PhrasesDataSource.sharedInstance.toPlay()?.url)
     }
 }
 
